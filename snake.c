@@ -9,12 +9,14 @@ int main(void) {
 
     // --- ESTADO DO JOGO ---
     Vector2 tamanhoCobra = { 20, 20 };
-    Vector2 posicaoCobra = { (float)larguraTela / 2, (float)alturaTela / 2 };
+    Vector2 corpoCobra[256];
+    corpoCobra[0] = (Vector2){ (float)larguraTela / 2, (float)alturaTela / 2 };
+    int tamanhoCorpo = 1;
+    
     Vector2 direcao = { tamanhoCobra.x, 0 };
     int contadorFrames = 0;
     
     Vector2 posicaocomida = { 0, 0 };
-    Vector2 tamanhocomida = { 20, 20 };
     bool comidaAtiva = false;
 
     // Gera a primeira posição aleatória para a comida
@@ -35,16 +37,23 @@ int main(void) {
 
         if (contadorFrames >= 10) {
             contadorFrames = 0;
-            posicaoCobra.x += direcao.x;
-            posicaoCobra.y += direcao.y;
+
+            // Mover o corpo
+            for (int i = tamanhoCorpo - 1; i > 0; i--) {
+                corpoCobra[i] = corpoCobra[i-1];
+            }
+            // Mover a cabeça
+            corpoCobra[0].x += direcao.x;
+            corpoCobra[0].y += direcao.y;
         }
 
         // Verificar colisão com a comida
         if (comidaAtiva && CheckCollisionRecs(
-            (Rectangle){ posicaoCobra.x, posicaoCobra.y, tamanhoCobra.x, tamanhoCobra.y },
-            (Rectangle){ posicaocomida.x, posicaocomida.y, tamanhocomida.x, tamanhocomida.y }
+            (Rectangle){ corpoCobra[0].x, corpoCobra[0].y, tamanhoCobra.x, tamanhoCobra.y },
+            (Rectangle){ posicaocomida.x, posicaocomida.y, tamanhoCobra.x, tamanhoCobra.y }
         )) {
             comidaAtiva = false;
+            tamanhoCorpo++; // A cobra cresce!
         }
 
         // Se a comida não está ativa, gerar uma nova
@@ -57,8 +66,14 @@ int main(void) {
         // --- 2. DESENHO (DRAW) ---
         BeginDrawing();
             ClearBackground(RAYWHITE);
-            DrawRectangleV(posicaoCobra, tamanhoCobra, GREEN);
-            if (comidaAtiva) DrawRectangleV(posicaocomida, tamanhocomida, RED);
+            
+            // Desenha cada segmento do corpo da cobra
+            for (int i = 0; i < tamanhoCorpo; i++) {
+                DrawRectangleV(corpoCobra[i], tamanhoCobra, GREEN);
+            }
+            
+            // Desenha a comida
+            if (comidaAtiva) DrawRectangleV(posicaocomida, tamanhoCobra, RED);
         EndDrawing();
     }
 
