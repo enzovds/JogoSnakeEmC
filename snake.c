@@ -1,12 +1,13 @@
 #include <raylib.h>
 #include <stdio.h>
 
-void ResetGame(int *tamanhoCorpo, Vector2 corpoCobra[], Vector2 *direcao, bool *gameOver, bool *comidaAtiva, Vector2 *posicaocomida, const int larguraTela, const int alturaTela, const Vector2 tamanhoCobra) {
+void ResetGame(int *tamanhoCorpo, Vector2 corpoCobra[], Vector2 *direcao, bool *gameOver, bool *comidaAtiva, Vector2 *posicaocomida,int *pontuacao, const int larguraTela, const int alturaTela, const Vector2 tamanhoCobra) {
     *tamanhoCorpo = 1;
     corpoCobra[0] = (Vector2){ (float)larguraTela / 2, (float)alturaTela / 2 };
     *direcao = (Vector2){ tamanhoCobra.x, 0 };
     *gameOver = false;
     *comidaAtiva = true;
+    *pontuacao = 0;
     posicaocomida->x = GetRandomValue(0, (larguraTela / (int)tamanhoCobra.x) - 1) * tamanhoCobra.x;
     posicaocomida->y = GetRandomValue(0, (alturaTela / (int)tamanhoCobra.y) - 1) * tamanhoCobra.y;
 }
@@ -15,7 +16,14 @@ int main(void) {
     const int larguraTela = 800;
     const int alturaTela = 600;
     InitWindow(larguraTela, alturaTela, "Jogo da Cobrinha - por Enzo");
+    InitAudioDevice();// Inicializa o áudio
+
     SetTargetFPS(60);
+
+    //carrega os sons
+    Sound somComer = LoadSound("eat.wav");
+    Sound somBater = LoadSound("hit.wav");
+    //
 
     Vector2 tamanhoCobra = { 20, 20 };
     Vector2 corpoCobra[256];
@@ -26,9 +34,10 @@ int main(void) {
     Vector2 posicaocomida;
     bool comidaAtiva = false;
     bool gameOver = false;
+    int pontuacao = 0;
 
     // Usando a função para configurar o estado inicial do jogo
-    ResetGame(&tamanhoCorpo, corpoCobra, &direcao, &gameOver, &comidaAtiva, &posicaocomida, larguraTela, alturaTela, tamanhoCobra);
+    ResetGame(&tamanhoCorpo, corpoCobra, &direcao, &gameOver, &comidaAtiva, &posicaocomida,&pontuacao, larguraTela, alturaTela, tamanhoCobra);
 
     while (!WindowShouldClose()) {
         if (!gameOver) {
@@ -63,6 +72,7 @@ int main(void) {
                 )) {
                     comidaAtiva = false;
                     tamanhoCorpo++;
+                    pontuacao += 100;
                 }
 
                 if (!comidaAtiva) {
@@ -73,20 +83,19 @@ int main(void) {
             }
         } else {
             if (IsKeyPressed(KEY_ENTER)) {
-                ResetGame(&tamanhoCorpo, corpoCobra, &direcao, &gameOver, &comidaAtiva, &posicaocomida, larguraTela, alturaTela, tamanhoCobra);
+                ResetGame(&tamanhoCorpo, corpoCobra, &direcao, &gameOver, &comidaAtiva, &posicaocomida,&pontuacao, larguraTela, alturaTela, tamanhoCobra);
             }
         }
     // --- 2. DESENHO (DRAW) ---
-
-    // ADICIONE ESTA LINHA DE DEBUG BEM AQUI
-    printf("Status do Jogo: gameOver = %d\n", gameOver);
-
         BeginDrawing();
             ClearBackground(RAYWHITE);
+            DrawText(TextFormat("PONTOS: %04i", pontuacao), 20, 20, 20, DARKGRAY);
+
             for (int i = 0; i < tamanhoCorpo; i++) {
                 DrawRectangleV(corpoCobra[i], tamanhoCobra, (i == 0) ? DARKGREEN : GREEN);
             }
             if (comidaAtiva) DrawRectangleV(posicaocomida, tamanhoCobra, RED);
+            
             if (gameOver) {
                 DrawText("GAME OVER", larguraTela / 2 - MeasureText("GAME OVER", 40) / 2, alturaTela / 2 - 40, 40, DARKGRAY);
                 DrawText("Pressione [ENTER] para jogar novamente", larguraTela / 2 - MeasureText("Pressione [ENTER] para jogar novamente", 20) / 2, alturaTela / 2 + 10, 20, DARKGRAY);
@@ -94,6 +103,11 @@ int main(void) {
         EndDrawing();
     }
 
+    // ..FINALIZAÇÃO
+    UnloadSound(somComer);
+    UnloadSound(somBater);
+    CloseAudioDevice();
     CloseWindow();
+    // ...
     return 0;
 }
