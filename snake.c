@@ -12,6 +12,15 @@ int main(void) {
     Vector2 posicaoCobra = { (float)larguraTela / 2, (float)alturaTela / 2 };
     Vector2 direcao = { tamanhoCobra.x, 0 };
     int contadorFrames = 0;
+    
+    Vector2 posicaocomida = { 0, 0 };
+    Vector2 tamanhocomida = { 20, 20 };
+    bool comidaAtiva = false;
+
+    // Gera a primeira posição aleatória para a comida
+    posicaocomida.x = GetRandomValue(0, (larguraTela / (int)tamanhoCobra.x) - 1) * tamanhoCobra.x;
+    posicaocomida.y = GetRandomValue(0, (alturaTela / (int)tamanhoCobra.y) - 1) * tamanhoCobra.y;
+    comidaAtiva = true;
 
     // --- LOOP PRINCIPAL DO JOGO ---
     while (!WindowShouldClose()) {
@@ -30,10 +39,26 @@ int main(void) {
             posicaoCobra.y += direcao.y;
         }
 
+        // Verificar colisão com a comida
+        if (comidaAtiva && CheckCollisionRecs(
+            (Rectangle){ posicaoCobra.x, posicaoCobra.y, tamanhoCobra.x, tamanhoCobra.y },
+            (Rectangle){ posicaocomida.x, posicaocomida.y, tamanhocomida.x, tamanhocomida.y }
+        )) {
+            comidaAtiva = false;
+        }
+
+        // Se a comida não está ativa, gerar uma nova
+        if (!comidaAtiva) {
+            posicaocomida.x = GetRandomValue(0, (larguraTela / (int)tamanhoCobra.x) - 1) * tamanhoCobra.x;
+            posicaocomida.y = GetRandomValue(0, (alturaTela / (int)tamanhoCobra.y) - 1) * tamanhoCobra.y;
+            comidaAtiva = true;
+        }
+
         // --- 2. DESENHO (DRAW) ---
         BeginDrawing();
             ClearBackground(RAYWHITE);
             DrawRectangleV(posicaoCobra, tamanhoCobra, GREEN);
+            if (comidaAtiva) DrawRectangleV(posicaocomida, tamanhocomida, RED);
         EndDrawing();
     }
 
