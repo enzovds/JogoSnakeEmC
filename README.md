@@ -5,7 +5,7 @@
 
 ![Screenshot do Jogo da Cobrinha](https://i.imgur.com/S4RBA0s.png)
 
-Este é um projeto clássico do Jogo da Cobrinha (Snake) desenvolvido do zero em linguagem C pura, utilizando a biblioteca `raylib` para gráficos e som. O objetivo principal foi o aprendizado prático dos fundamentos de desenvolvimento de jogos, incluindo o game loop, renderização, detecção de colisões e gerenciamento de estado..
+Este é um projeto clássico do Jogo da Cobrinha (Snake) desenvolvido do zero em linguagem C pura, utilizando a biblioteca `raylib` para gráficos e som. O objetivo principal foi o aprendizado prático dos fundamentos de desenvolvimento de jogos, incluindo o game loop, renderização, detecção de colisões e gerenciamento de estado.
 
 ---
 
